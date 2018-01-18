@@ -1,4 +1,4 @@
-package wooklee.koreaplaner.config;
+package wooklee.koreaplaner.configs.swagger;
 
 
 import org.springframework.context.annotation.Bean;
