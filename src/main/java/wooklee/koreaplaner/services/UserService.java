@@ -74,30 +74,44 @@ public class UserService {
         if(!confirmPhoneNumber(userSignUp.getPhonenumber())){
             return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.EXIST_PHONENUMBER),HttpStatus.BAD_REQUEST);
         }
-//        if(multipartFile==null){
-//            AddUserDto addUserDto = new AddUserDto(userSignUp);
-//            addUserDto.setProfileimage(ErrorStrings.IMAGE_IS_NULL);
-//            um.userRegist(addUserDto);
-//            //return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.IMAGE_IS_NULL),HttpStatus.SERVICE_UNAVAILABLE);
-//        }else {
-            //String filename = s3Service.uploadS3(multipartFile);
-            AddUserDto addUserDto = new AddUserDto(userSignUp);
-            //addUserDto.setProfileimage(filename);
-            um.userRegist(addUserDto);
+        um.userRegist(new AddUserDto().addUser(userSignUp));
 
         return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"USER_REGIST_SUCCESS"),HttpStatus.OK);
     }
 
+    public ResponseEntity<DefaultResponse> addProfilImage(String email , MultipartFile multipartFile) throws IOException{
+        if(multipartFile==null){
+            return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.IMAGE_IS_NULL),HttpStatus.BAD_REQUEST);
+        }else{
+            FindUserDto findUserDto = um.confirmEmail(email);
+
+            String filename = s3Service.uploadS3(multipartFile);
+            findUserDto.setProfileimage(filename);
+            um.addUserImage(new AddUserDto().updateUser(findUserDto));
+            return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"SUCCESS_IMAGE_REGIST"),HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<DefaultResponse> addInterest(String email, String interest){
+        FindUserDto findUserDto = um.confirmEmail(email);
+        findUserDto.setInterest(interest);
+        um.addUserInterest(new AddUserDto().updateUser(findUserDto));
+        return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"SUCCESS_INTEREST_REGIST"),HttpStatus.OK);
+    }
+
+
+
+
+
     //0 ids
     //1 email
     //3 name
-    public <T>FindUserDto findUser(int id,T t){
-        if(id==0){
+    public <T>FindUserDto findUser(int index,T t){
+        if(index==0){
             int i  = (Integer)t;
             return findById(i);
-        }else if(id ==1){
-            String email = jwtUtil.getEmailFromToken((String)t);
-            FindUserDto findUserDto = findByEmail(email);
+        }else if(index ==1){
+            FindUserDto findUserDto = findByEmail((String)t);
             String profileimage=findUserDto.getProfileimage();
             findUserDto.setProfileimage(url+profileimage);
             return findUserDto;

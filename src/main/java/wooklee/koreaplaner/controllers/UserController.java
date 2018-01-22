@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.ion.IonException;
+import wooklee.koreaplaner.configs.jwt.JwtUtil;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
 import wooklee.koreaplaner.domains.User.User;
 import wooklee.koreaplaner.mappers.UserMapper;
@@ -31,20 +34,14 @@ public class UserController {
     @Autowired
     private UserService us;
 
-    @Autowired
-    private UserMapper um;
-
     @Value("${jwt.header}")
     private String header;
 
-    @GetMapping(value = "/exam")
-    public ResponseEntity<DefaultResponse> examController(){
-        List<User> user = um.findAll();
-        DefaultResponse dr = new DefaultResponse(Status.FAIL,user);
-        return new ResponseEntity<>(dr, HttpStatus.OK);
-    }
+    @Autowired
+    private JwtUtil jwtUtil;
 
-    @PostMapping(value="/user/login")
+
+    @PostMapping(value="/login")
     public ResponseEntity<DefaultResponse> userLogin(@RequestBody UserLogin userLogin){
         return us.userLogin(userLogin);
     }
@@ -60,12 +57,37 @@ public class UserController {
             @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
-    @GetMapping(value = "find/user")
-    public ResponseEntity<DefaultResponse> confirm(HttpServletRequest httpServletRequest){
+    @GetMapping(value = "/find")
+    public ResponseEntity<DefaultResponse> findUser(HttpServletRequest httpServletRequest){
         String token = httpServletRequest.getHeader(header);
-        DefaultResponse dr = new DefaultResponse(Status.SUCCESS,us.findUser(1,token));
+        String email = jwtUtil.getEmailFromToken(token);
+        DefaultResponse dr = new DefaultResponse(Status.SUCCESS,us.findUser(1,email));
         return new ResponseEntity<>(dr,HttpStatus.OK);
     }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
+
+    @PutMapping(value = "/add/profilimage")
+    public ResponseEntity<DefaultResponse> addProfilImage(HttpServletRequest httpServletRequest,@RequestParam("profilImage")MultipartFile multipartFile) throws IOException{
+        String token = httpServletRequest.getHeader(header);
+        String email = jwtUtil.getEmailFromToken(token);
+        return us.addProfilImage(email,multipartFile);
+    }
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
+    @PutMapping(value = "/add/interest")
+    public ResponseEntity<DefaultResponse> addInterest(@RequestParam("interest") String interest,HttpServletRequest httpServletRequest){
+      String token = httpServletRequest.getHeader(header);
+      String email = jwtUtil.getEmailFromToken(token);
+      return us.addInterest(email,interest);
+    }
+
 
 
 

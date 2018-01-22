@@ -37,12 +37,13 @@ public class S3Service {
 
     public String uploadS3(MultipartFile multipartFile) throws IOException{
         TransferManager transferManager = new TransferManager(this.amazonS3);
-
+        System.err.println(multipartFile.getOriginalFilename());
         String ext = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().indexOf("."));
 
         String filename = UUID.randomUUID().toString().replace("-","")+ext;
 
-        File file = new File(System.getProperty("user.dir")+"/webapps/koreaplaner"+filename);
+//        File file = new File(System.getProperty("user.dir")+"/webapps/koreaplaner"+filename);
+        File file = new File(System.getProperty("user.dir")+filename);
 
         multipartFile.transferTo(file);
 

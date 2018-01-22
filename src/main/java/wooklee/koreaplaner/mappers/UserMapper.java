@@ -20,4 +20,6 @@ public interface UserMapper {
     FindUserDto confirmPhoneNumber(String phoneNumber);
     void userRegist(AddUserDto addUserDto);
     User confirmUser(String email);
+    void addUserImage(AddUserDto addUserDto);
+    void addUserInterest(AddUserDto addUserDto);
 }
