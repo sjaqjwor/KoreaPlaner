@@ -1,4 +1,4 @@
-package wooklee.koreaplaner.dtos;
+package wooklee.koreaplaner.dtos.user;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class FindUserDto {
+    private int id;
     private String name;
     private String profileimage;
     private String email;

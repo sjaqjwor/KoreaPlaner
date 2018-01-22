@@ -1,4 +1,4 @@
-package wooklee.koreaplaner.dtos;
+package wooklee.koreaplaner.dtos.user;
 
 import lombok.*;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;

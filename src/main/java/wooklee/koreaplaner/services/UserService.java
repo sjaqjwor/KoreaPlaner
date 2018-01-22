@@ -18,9 +18,8 @@ import wooklee.koreaplaner.controllers.requests.user.UserLogin;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse.Status;
-import wooklee.koreaplaner.domains.User.User;
-import wooklee.koreaplaner.dtos.AddUserDto;
-import wooklee.koreaplaner.dtos.FindUserDto;
+import wooklee.koreaplaner.dtos.user.AddUserDto;
+import wooklee.koreaplaner.dtos.user.FindUserDto;
 import wooklee.koreaplaner.mappers.UserMapper;
 import wooklee.koreaplaner.utiles.ErrorStrings;
 
@@ -103,14 +102,11 @@ public class UserService {
 
 
 
-    //0 ids
+
     //1 email
     //3 name
     public <T>FindUserDto findUser(int index,T t){
-        if(index==0){
-            int i  = (Integer)t;
-            return findById(i);
-        }else if(index ==1){
+        if(index ==1){
             FindUserDto findUserDto = findByEmail((String)t);
             String profileimage=findUserDto.getProfileimage();
             findUserDto.setProfileimage(url+profileimage);

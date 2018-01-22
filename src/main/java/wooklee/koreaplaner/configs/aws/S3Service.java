@@ -42,8 +42,8 @@ public class S3Service {
 
         String filename = UUID.randomUUID().toString().replace("-","")+ext;
 
-//        File file = new File(System.getProperty("user.dir")+"/webapps/koreaplaner"+filename);
-        File file = new File(System.getProperty("user.dir")+filename);
+        File file = new File(System.getProperty("user.dir")+"/webapps/koreaplaner"+filename);
+//        File file = new File(System.getProperty("user.dir")+filename);
 
         multipartFile.transferTo(file);
 

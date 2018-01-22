@@ -132,26 +132,26 @@ public class UserControllerTest {
         logger.info(mvcResult.getResponse().getContentAsString());
 
     }
-    @Test
-    public void addProfilImage() throws Exception{
-        String interest = "test";
-        String token = token().split(",")[1];
-        token=token.substring(10,token.length()-2);
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("profilImage","example.jpeg",MediaType.MULTIPART_FORM_DATA_VALUE,"/home/seungki/example.jpeg".getBytes());
-        System.err.println(mockMultipartFile.getOriginalFilename());
-        MockMultipartHttpServletRequestBuilder builders = MockMvcRequestBuilders.fileUpload("/user/add/profilimage");
-        builders.with(new RequestPostProcessor() {
-            @Override
-            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest mockHttpServletRequest) {
-                mockHttpServletRequest.setMethod("PUT");
-                return mockHttpServletRequest;
-            }
-        });
-
-        MvcResult mvcResult=mockMvc.perform(builders.file(mockMultipartFile
-       ).header("Authorization",token)).andDo(print()).andReturn();
-        logger.info(mvcResult.getResponse().getContentAsString());
-    }
+//    @Test
+//    public void addProfilImage() throws Exception{
+//        String interest = "test";
+//        String token = token().split(",")[1];
+//        token=token.substring(10,token.length()-2);
+//        MockMultipartFile mockMultipartFile = new MockMultipartFile("profilImage","example.jpeg",MediaType.MULTIPART_FORM_DATA_VALUE,"/home/seungki/example.jpeg".getBytes());
+//        System.err.println(mockMultipartFile.getOriginalFilename());
+//        MockMultipartHttpServletRequestBuilder builders = MockMvcRequestBuilders.fileUpload("/user/add/profilimage");
+//        builders.with(new RequestPostProcessor() {
+//            @Override
+//            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest mockHttpServletRequest) {
+//                mockHttpServletRequest.setMethod("PUT");
+//                return mockHttpServletRequest;
+//            }
+//        });
+//
+//        MvcResult mvcResult=mockMvc.perform(builders.file(mockMultipartFile
+//       ).header("Authorization",token)).andDo(print()).andReturn();
+//        logger.info(mvcResult.getResponse().getContentAsString());
+//    }
 
     private String json(Object object) throws JsonProcessingException{
         ObjectMapper objectMapper = new ObjectMapper();
@@ -159,7 +159,7 @@ public class UserControllerTest {
     }
 
 
-    private String token() throws Exception{
+    public String token() throws Exception{
         UserLogin login = new UserLogin();
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdrl123");
