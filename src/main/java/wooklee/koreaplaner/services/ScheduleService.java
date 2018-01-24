@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
+import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleListRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse;
 import wooklee.koreaplaner.dtos.schedule.CreateDetailScheduleDto;
@@ -31,9 +32,9 @@ public class ScheduleService {
         return new ResponseEntity<>(dr, HttpStatus.OK);
     }
 
-    public ResponseEntity<DefaultResponse> createDetailSchedule(String email,int sid,List<DetailScheduleRequest> list){
+    public ResponseEntity<DefaultResponse> createDetailSchedule(String email,int sid,DetailScheduleListRequest list){
         int index=1;
-        for(DetailScheduleRequest d : list){
+        for(DetailScheduleRequest d : list.getList()){
             sm.createDetailSchedule(new CreateDetailScheduleDto().create(index,sid,d));
             index++;
         }

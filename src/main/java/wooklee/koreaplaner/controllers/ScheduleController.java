@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
 import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
+import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleListRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse;
 import wooklee.koreaplaner.services.ScheduleService;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping(value="/schedule")
+@RequestMapping(value="/api/schedule")
 @Api
 public class ScheduleController {
 
@@ -47,10 +48,10 @@ public class ScheduleController {
                     dataType = "string", paramType = "Header")
     })
     @PostMapping(value = "/add/{idx}/detail")
-    public ResponseEntity<DefaultResponse> addScheduleDetail(@PathVariable(value = "idx") int id, @RequestBody List<DetailScheduleRequest> detailScheduleRequests, HttpServletRequest httpServletRequest){
+    public ResponseEntity<DefaultResponse> addScheduleDetail(@PathVariable(value = "idx") int id, @RequestBody DetailScheduleListRequest detailScheduleListRequest, HttpServletRequest httpServletRequest){
         String token = httpServletRequest.getHeader(header);
         String email = jwtUtil.getEmailFromToken(token);
-        return ss.createDetailSchedule(email,id,detailScheduleRequests);
+        return ss.createDetailSchedule(email,id,detailScheduleListRequest);
     }
 
 }

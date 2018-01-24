@@ -63,7 +63,7 @@ public class UserControllerTest {
 
         String json = this.json(userSignUp);
 
-        MvcResult mvcResult = mockMvc.perform(post("/user/sign/up")
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/sign/up")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andDo(print())
@@ -78,7 +78,7 @@ public class UserControllerTest {
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdrl123");
         String json = this.json(login);
-        MvcResult mvcResult = mockMvc.perform(post("/user/login").
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login").
                 contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andDo(print())
@@ -92,7 +92,7 @@ public class UserControllerTest {
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdasdl123");
         String json = this.json(login);
-        MvcResult mvcResult = mockMvc.perform(post("/user/login").
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login").
                 contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andDo(print())
@@ -118,7 +118,7 @@ public class UserControllerTest {
         String interest = "test";
         String token = token().split(",")[1];
         token=token.substring(10,token.length()-2);
-        MvcResult mvcResult = mockMvc.perform(put("/user/add/interest").header(
+        MvcResult mvcResult = mockMvc.perform(put("/api/user/add/interest").header(
                 "Authorization",token
         ).param("interest",interest)).andDo(print()).andReturn();
         logger.info(mvcResult.getResponse().getContentAsString());

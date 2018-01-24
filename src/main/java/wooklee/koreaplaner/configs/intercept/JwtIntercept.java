@@ -36,7 +36,7 @@ public class JwtIntercept implements HandlerInterceptor{
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,ErrorStrings.TOKEN_IS_NOT_TRUE);
            return false;
         }
-        if(!jwtUtil.checkExpir(token)){
+        if(jwtUtil.checkExpir(token)){
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,ErrorStrings.FINISH_TOKEN_EXPIRE);
             return false;
         }
