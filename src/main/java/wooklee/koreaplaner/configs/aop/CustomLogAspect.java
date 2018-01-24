@@ -1,9 +1,10 @@
-package wooklee.koreaplaner.configs.log;
+package wooklee.koreaplaner.configs.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class CustomLogAspect {
 
     @Around("execution(* wooklee.koreaplaner.controllers.*Controller.*(..))")
     public Object controllerLog(ProceedingJoinPoint jp) throws Throwable {
+
         long startTime = System.currentTimeMillis();
         ResponseEntity<DefaultResponse> re = (ResponseEntity<DefaultResponse>) jp.proceed();
 

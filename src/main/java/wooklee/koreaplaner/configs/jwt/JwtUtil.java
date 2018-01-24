@@ -4,8 +4,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import wooklee.koreaplaner.domains.User.User;
+import wooklee.koreaplaner.dtos.user.FindUserDto;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ public class JwtUtil {
 
     @Value("${jwt.expiration}")
     private String expiration;
+    @Value("${jwt.issuer}")
+    private String issuer;
 
 
     public String getEmailFromToken(String token){
@@ -48,35 +51,36 @@ public class JwtUtil {
         return claims;
     }
 
-    public String createToken(UserDetails userDetails){
+    public String createToken(FindUserDto findUserDto){
         Map<String,Object> map  = new HashMap<>();
-        return generateToken(map,userDetails);
+        map=generateClamis(findUserDto);
+        return generateToken(map,findUserDto);
     }
 
-    private String generateToken(Map<String,Object> map ,UserDetails userDetails){
+    private String generateToken(Map<String,Object> map ,FindUserDto user){
         Date create = new Date();
         Date expir = new Date(create.getTime()+Long.valueOf(expiration)*1000);
 
         return Jwts.builder()
                 .setClaims(map)
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getEmail())
+                .setIssuer(issuer)
                 .setIssuedAt(create)
                 .setExpiration(expir)
                 .signWith(SignatureAlgorithm.HS512,secret)
                 .compact();
     }
 
-    public boolean cofirmToken(String token, UserDetails userDetails){
-        JwtUser jwtUser = (JwtUser)userDetails;
-        String email = getEmailFromToken(token);
-        System.err.println(email);
-        return email.equals(jwtUser.getUsername())
-                &&!checkExpir(token);
+// security
+//    public boolean cofirmToken(String token, UserDetails userDetails){
+//        JwtUser jwtUser = (JwtUser)userDetails;
+//        String email = getEmailFromToken(token);
+//        System.err.println(email);
+//        return email.equals(jwtUser.getUsername())
+//                &&!checkExpir(token);
+//    }
 
-
-    }
-
-    private boolean checkExpir(String token){
+    public boolean checkExpir(String token){
         Date ex = getExpriationDate(token);
         return ex.before(new Date());
     }
@@ -85,8 +89,10 @@ public class JwtUtil {
         return getClaimFromToken(token,Claims::getExpiration);
     }
 
-    public Date getCreateDate(String token){
-        return getClaimFromToken(token,Claims::getIssuedAt);
+    public Map<String , Object> generateClamis(FindUserDto findUserDto){
+        Map<String,Object> map = new HashMap<>();
+        map.put("email",findUserDto.getEmail());
+        return map;
     }
 
 

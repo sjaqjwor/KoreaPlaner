@@ -7,4 +7,6 @@ public class ErrorStrings {
     public static final String TOKEN_IS_NOT_TRUE = "TOKEN_IS_NOT_TRUE ";
     public static final String ACCURE_AWS_ERROR  = "ACCURE_AWS_ERROR";
     public static final String IMAGE_IS_NULL = "IMAGE_IS_NULL";
+    public static final String FINISH_TOKEN_EXPIRE = "FINISH_TOKEN_EXPIRE";
+
 }

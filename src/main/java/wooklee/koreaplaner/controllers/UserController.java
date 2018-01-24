@@ -6,28 +6,21 @@ import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.method.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.ion.IonException;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
+import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
-import wooklee.koreaplaner.domains.User.User;
-import wooklee.koreaplaner.mappers.UserMapper;
-import wooklee.koreaplaner.controllers.requests.user.UserLogin;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse;
 import wooklee.koreaplaner.controllers.responses.DefaultResponse.Status;
 import wooklee.koreaplaner.services.UserService;
-import wooklee.koreaplaner.utiles.ErrorStrings;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
-@RequestMapping(value="/user")
+@RequestMapping(value="/api/user")
 @Api
 public class UserController {
 
@@ -42,7 +35,7 @@ public class UserController {
 
 
     @PostMapping(value="/login")
-    public ResponseEntity<DefaultResponse> userLogin(@RequestBody UserLogin userLogin){
+    public ResponseEntity<DefaultResponse> userLogin(@RequestBody UserLoginRequest userLogin){
         return us.userLogin(userLogin);
     }
 

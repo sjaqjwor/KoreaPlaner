@@ -8,25 +8,17 @@ import org.junit.runner.RunWith;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import wooklee.koreaplaner.configs.log.CustomLogAspect;
 import wooklee.koreaplaner.controllers.UserController;
-import wooklee.koreaplaner.controllers.requests.user.UserLogin;
+import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
 
 import wooklee.koreaplaner.services.UserService;
@@ -82,7 +74,7 @@ public class UserControllerTest {
 
     @Test
     public void userLogin() throws Exception{
-        UserLogin login = new UserLogin();
+        UserLoginRequest login = new UserLoginRequest();
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdrl123");
         String json = this.json(login);
@@ -96,7 +88,7 @@ public class UserControllerTest {
 
     @Test
     public void userLoginFailed() throws Exception{
-        UserLogin login = new UserLogin();
+        UserLoginRequest login = new UserLoginRequest();
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdasdl123");
         String json = this.json(login);
@@ -113,7 +105,7 @@ public class UserControllerTest {
     public void userFind() throws Exception {
         String token = token().split(",")[1];
         token=token.substring(10,token.length()-2);
-        MvcResult mvcResult = mockMvc.perform(get("/user/find").header(
+        MvcResult mvcResult = mockMvc.perform(get("/api/user/find").header(
                 "Authorization",token
         )).andDo(print()).andReturn();
         logger.info(mvcResult.getResponse().getContentAsString());
@@ -160,12 +152,12 @@ public class UserControllerTest {
 
 
     public String token() throws Exception{
-        UserLogin login = new UserLogin();
+        UserLoginRequest login = new UserLoginRequest();
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdrl123");
         String json = this.json(login);
 
-        MvcResult mvcResult = mockMvc.perform(post("/user/login").
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login").
                 contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andReturn();

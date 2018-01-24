@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 import wooklee.koreaplaner.domains.User.User;
 import wooklee.koreaplaner.dtos.user.AddUserDto;
+import wooklee.koreaplaner.dtos.user.ConfirmUserDto;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface UserMapper {
     FindUserDto confirmId(int id);
     FindUserDto confirmPhoneNumber(String phoneNumber);
     void userRegist(AddUserDto addUserDto);
-    User confirmUser(String email);
+    FindUserDto confirmUser(ConfirmUserDto confirmUserDto);
     void addUserImage(AddUserDto addUserDto);
     void addUserInterest(AddUserDto addUserDto);
 }

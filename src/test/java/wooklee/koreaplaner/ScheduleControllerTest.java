@@ -27,7 +27,7 @@ import wooklee.koreaplaner.controllers.ScheduleController;
 import wooklee.koreaplaner.controllers.UserController;
 import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
-import wooklee.koreaplaner.controllers.requests.user.UserLogin;
+import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
 import wooklee.koreaplaner.dtos.schedule.CreateDetailScheduleDto;
 import wooklee.koreaplaner.services.UserService;
@@ -118,7 +118,7 @@ public class ScheduleControllerTest {
     }
 
     public String token() throws Exception{
-        UserLogin login = new UserLogin();
+        UserLoginRequest login = new UserLoginRequest();
         login.setEmail("sjaqjwor1@gmail.com");
         login.setPassword("dltmdrl123");
         String json = this.json(login);
