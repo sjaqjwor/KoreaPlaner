@@ -2,6 +2,9 @@ package wooklee.koreaplaner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +29,7 @@ import wooklee.koreaplaner.configs.jwt.JwtUtil;
 import wooklee.koreaplaner.controllers.ScheduleController;
 import wooklee.koreaplaner.controllers.UserController;
 import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
+import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleListRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
@@ -35,13 +39,15 @@ import wooklee.koreaplaner.services.UserService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-//@Transactional
+@Transactional
 public class ScheduleControllerTest {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ScheduleControllerTest.class);
@@ -71,10 +77,11 @@ public class ScheduleControllerTest {
         createSchedule.setTitle("국내일주");
         createSchedule.setThema("신혼");
 
-        MvcResult mvcResult = mockMvc.perform(post("/schedule/add").header(
+        MvcResult mvcResult = mockMvc.perform(post("/api/schedule/add").header(
                 "Authorization",token
         ).contentType(MediaType.APPLICATION_JSON)
-                .content(json(createSchedule))).andDo(print()).andReturn();
+                .content(json(createSchedule)))
+                .andExpect(status().isOk()).andDo(print()).andReturn();
         logger.info(mvcResult.getResponse().getContentAsString());
 
 
@@ -108,10 +115,12 @@ public class ScheduleControllerTest {
         list.add(d);
         list.add(d1);
         list.add(d2);
-        String json = json(list);
-        MvcResult mvcResult = mockMvc.perform(post("/add/{idx}/detail","7").header(
+        DetailScheduleListRequest detailScheduleListRequest = new DetailScheduleListRequest();
+        detailScheduleListRequest.setList(list);
+        System.err.println(json(detailScheduleListRequest));
+        MvcResult mvcResult = mockMvc.perform(post("/api/schedule/add/{idx}/detail","7").header(
                 "Authorization",token
-        ).contentType(MediaType.APPLICATION_JSON).content(json(list))).andDo(print()).andReturn();
+        ).contentType(MediaType.APPLICATION_JSON).content(json(detailScheduleListRequest))).andDo(print()).andExpect(status().isOk()).andReturn();
         logger.info(mvcResult.getResponse().getContentAsString());
 
 
@@ -123,7 +132,7 @@ public class ScheduleControllerTest {
         login.setPassword("dltmdrl123");
         String json = this.json(login);
 
-        MvcResult mvcResult = mockMvc.perform(post("/user/login").
+        MvcResult mvcResult = mockMvc.perform(post("/api/user/login").
                 contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andReturn();

@@ -3,11 +3,17 @@ package wooklee.koreaplaner.configs.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import wooklee.koreaplaner.configs.cors.CorsFilter;
 import wooklee.koreaplaner.configs.intercept.JwtIntercept;
+
+import java.nio.charset.Charset;
+import java.util.List;
 
 @Configuration
 public class WebSecurity extends WebMvcConfigurerAdapter{
@@ -43,6 +49,18 @@ public class WebSecurity extends WebMvcConfigurerAdapter{
         registry
                 .addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters){
+
+        Charset standard = Charset.forName("UTF-8");
+
+        MappingJackson2HttpMessageConverter jackson = new MappingJackson2HttpMessageConverter();
+        jackson.setDefaultCharset(standard);
+
+        ResourceHttpMessageConverter resource = new ResourceHttpMessageConverter();
+        converters.add(jackson);
+        converters.add(resource);
     }
 
 //
