@@ -9,7 +9,7 @@ import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateDetailScheduleDto {
+public class DetailScheduleDto {
     private int sid;
     private String city;
     private double latitude;
@@ -19,7 +19,7 @@ public class CreateDetailScheduleDto {
     private String enddate;
     private int sequence;
 
-    public CreateDetailScheduleDto create(int sequence,int sid,DetailScheduleRequest detailScheduleRequest){
+    public DetailScheduleDto create(int sid,DetailScheduleRequest detailScheduleRequest){
         return builder()
                 .city(detailScheduleRequest.getCity())
                 .sid(sid)
@@ -28,7 +28,18 @@ public class CreateDetailScheduleDto {
                 .traffic(detailScheduleRequest.getTraffic())
                 .latitude(detailScheduleRequest.getLatitude())
                 .longitude(detailScheduleRequest.getLongitude())
-                .sequence(sequence)
+                .sequence(detailScheduleRequest.getSequence())
+                .build();
+    }
+    public DetailScheduleDto update(DetailScheduleRequest detailScheduleRequest){
+        return builder()
+                .city(detailScheduleRequest.getCity())
+                .enddate(detailScheduleRequest.getEnddate())
+                .startdate(detailScheduleRequest.getStartdate())
+                .traffic(detailScheduleRequest.getTraffic())
+                .latitude(detailScheduleRequest.getLatitude())
+                .longitude(detailScheduleRequest.getLongitude())
+                .sequence(detailScheduleRequest.getSequence())
                 .build();
     }
 }

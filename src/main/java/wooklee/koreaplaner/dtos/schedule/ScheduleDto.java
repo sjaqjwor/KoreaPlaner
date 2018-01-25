@@ -1,7 +1,8 @@
 package wooklee.koreaplaner.dtos.schedule;
 
 import lombok.*;
-import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
+import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
+
 
 @Getter
 @Setter
@@ -9,7 +10,7 @@ import wooklee.koreaplaner.controllers.requests.schedule.CreateScheduleRequest;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateScheduleDto {
+public class ScheduleDto {
     private int sid;
     private int uid;
     private String title;
@@ -19,7 +20,7 @@ public class CreateScheduleDto {
     private int share;
     private int favorite;
 
-    public CreateScheduleDto create(int uid,CreateScheduleRequest createSchedule){
+    public ScheduleDto create(int uid,ScheduleRequest createSchedule){
         return builder()
                 .title(createSchedule.getTitle())
                 .startdate(createSchedule.getStartdate())
@@ -29,5 +30,15 @@ public class CreateScheduleDto {
                 .share(0)
                 .favorite(0)
                 .build();
+    }
+
+    public ScheduleDto update(int sid,ScheduleRequest scheduleRequest){
+        return builder()
+               .sid(sid)
+               .startdate(scheduleRequest.getStartdate())
+               .enddate(scheduleRequest.getEnddate())
+               .thema(scheduleRequest.getThema())
+               .title(scheduleRequest.getTitle())
+               .build();
     }
 }
