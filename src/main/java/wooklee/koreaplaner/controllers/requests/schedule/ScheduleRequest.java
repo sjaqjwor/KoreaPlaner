@@ -11,6 +11,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class ScheduleRequest {
     @NotNull
+    private String uidx;
+    @NotNull
     private String title;
     @NotNull
     private String startdate;

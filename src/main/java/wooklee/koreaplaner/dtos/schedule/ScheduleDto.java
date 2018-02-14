@@ -20,13 +20,13 @@ public class ScheduleDto {
     private int share;
     private int favorite;
 
-    public static ScheduleDto create(int uid,ScheduleRequest createSchedule){
+    public static ScheduleDto create(ScheduleRequest createSchedule){
         return builder()
                 .title(createSchedule.getTitle())
                 .startdate(createSchedule.getStartdate())
                 .enddate(createSchedule.getEnddate())
                 .thema(createSchedule.getThema())
-                .uid(uid)
+                .uid(Integer.parseInt(createSchedule.getUidx()))
                 .share(0)
                 .favorite(0)
                 .build();

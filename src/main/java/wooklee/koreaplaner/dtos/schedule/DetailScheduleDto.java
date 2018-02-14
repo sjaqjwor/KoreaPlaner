@@ -1,7 +1,7 @@
 package wooklee.koreaplaner.dtos.schedule;
 
 import lombok.*;
-import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
+import wooklee.koreaplaner.controllers.requests.detailschedule.DetailScheduleRequest;
 
 @Getter
 @Setter
@@ -11,9 +11,8 @@ import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleRequest;
 @NoArgsConstructor
 public class DetailScheduleDto {
     private int sid;
+    private int id;
     private String city;
-    private double latitude;
-    private double longitude;
     private String traffic;
     private String startdate;
     private String enddate;
@@ -26,19 +25,16 @@ public class DetailScheduleDto {
                 .enddate(detailScheduleRequest.getEnddate())
                 .startdate(detailScheduleRequest.getStartdate())
                 .traffic(detailScheduleRequest.getTraffic())
-                .latitude(detailScheduleRequest.getLatitude())
-                .longitude(detailScheduleRequest.getLongitude())
                 .sequence(detailScheduleRequest.getSequence())
                 .build();
     }
-    public static DetailScheduleDto update(DetailScheduleRequest detailScheduleRequest){
+    public static DetailScheduleDto update(Integer sid,DetailScheduleRequest detailScheduleRequest){
         return builder()
+                .sid(sid)
                 .city(detailScheduleRequest.getCity())
                 .enddate(detailScheduleRequest.getEnddate())
                 .startdate(detailScheduleRequest.getStartdate())
                 .traffic(detailScheduleRequest.getTraffic())
-                .latitude(detailScheduleRequest.getLatitude())
-                .longitude(detailScheduleRequest.getLongitude())
                 .sequence(detailScheduleRequest.getSequence())
                 .build();
     }

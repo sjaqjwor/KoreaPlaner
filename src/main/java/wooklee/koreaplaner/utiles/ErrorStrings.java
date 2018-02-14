@@ -9,4 +9,5 @@ public class ErrorStrings {
     public static final String IMAGE_IS_NULL = "IMAGE_IS_NULL";
     public static final String FINISH_TOKEN_EXPIRE = "FINISH_TOKEN_EXPIRE";
     public static final String USER_NOT_FOUND= "USER_NOT_FOUND";
+    public static final String Schedule_NOT_FOUND="SCHEDULE_NOT_FOUND";
 }

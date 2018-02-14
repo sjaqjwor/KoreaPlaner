@@ -1,22 +1,20 @@
 package wooklee.koreaplaner.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import wooklee.koreaplaner.controllers.requests.schedule.DetailScheduleListRequest;
+import wooklee.koreaplaner.controllers.requests.detailschedule.DetailScheduleListRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
-import wooklee.koreaplaner.controllers.responses.DefaultResponse;
+import wooklee.koreaplaner.controllers.responses.DetailScheduleResponse;
+import wooklee.koreaplaner.controllers.responses.ScheduleResponse;
 import wooklee.koreaplaner.dtos.schedule.DetailScheduleDto;
-import wooklee.koreaplaner.dtos.schedule.RoutScheduleDto;
 import wooklee.koreaplaner.dtos.schedule.ScheduleDto;
-import wooklee.koreaplaner.mappers.RoutScheduleMapper;
+import wooklee.koreaplaner.mappers.DetailScheduleMapper;
 import wooklee.koreaplaner.mappers.ScheduleMapper;
+import wooklee.koreaplaner.utiles.ErrorStrings;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Service
 public class ScheduleService {
@@ -25,43 +23,57 @@ public class ScheduleService {
     private ScheduleMapper sm;
 
     @Autowired
-    private RoutScheduleMapper rsm;
+    private DetailScheduleMapper rsm;
 
     @Autowired
     private UserService userService;
 
-    public ResponseEntity<DefaultResponse> createSchedule(String idx, ScheduleRequest createSchedule){
-        int id = userService.findUser(0,idx).getId();
-        ScheduleDto createScheduleDto = ScheduleDto.create(id,createSchedule);
+    public ScheduleResponse createSchedule(ScheduleRequest createSchedule){
+        ScheduleDto createScheduleDto = ScheduleDto.create(createSchedule);
         sm.createSchedule(createScheduleDto);
-        DefaultResponse dr = new DefaultResponse(DefaultResponse.Status.SUCCESS,createScheduleDto.getSid());
-        return new ResponseEntity<>(dr, HttpStatus.OK);
+        return new ScheduleResponse(createScheduleDto.getSid(),"SUCCESS", ScheduleResponse.Status.OK);
+
     }
 
-    public ResponseEntity<DefaultResponse> createDetailSchedule(String sid,DetailScheduleListRequest createDetailSchedulelist){
+    public DetailScheduleResponse createDetailSchedule(String sid,DetailScheduleListRequest createDetailSchedulelist){
         int sidx = Integer.parseInt(sid);
-        createDetailSchedulelist.getList().stream().forEach(s->sm.createDetailSchedule(DetailScheduleDto.create(sidx,s)));
-        DefaultResponse dr = new DefaultResponse(DefaultResponse.Status.SUCCESS,"SUCCESS_DETAILSCHEDULE_REGIST");
-        return new ResponseEntity<>(dr, HttpStatus.OK);
+        if(sm.getSchedule(sidx)==null){
+            return new DetailScheduleResponse(ErrorStrings.Schedule_NOT_FOUND, DetailScheduleResponse.Status.NOTFOUND);
+        }
+        createDetailSchedulelist.getList().stream().forEach(s->rsm.createDetailSchedule(DetailScheduleDto.create(sidx,s)));
+        return new DetailScheduleResponse("SUCCESS", DetailScheduleResponse.Status.OK);
     }
-    public ResponseEntity<DefaultResponse> updateSchedule(String idx,ScheduleRequest updateSchedulRequest){
-        int sid = Integer.parseInt(idx);
-        sm.updateSchedule(ScheduleDto.update(sid,updateSchedulRequest));
-        DefaultResponse dr = new DefaultResponse(DefaultResponse.Status.SUCCESS,"SUCCESS_UPDATE_SCHEDULE");
-        return new ResponseEntity<>(dr, HttpStatus.OK);
+
+    public ScheduleResponse updateSchedule(String sid,ScheduleRequest updateSchedulRequest){
+        int sidx = Integer.parseInt(sid);
+        if(sm.getSchedule(sidx)==null){
+            return new ScheduleResponse(ErrorStrings.Schedule_NOT_FOUND, ScheduleResponse.Status.NOTFOUND);
+        }
+        sm.updateSchedule(ScheduleDto.update(sidx,updateSchedulRequest));
+        return new ScheduleResponse("SUCCESS", ScheduleResponse.Status.OK);
     }
-    public ResponseEntity<DefaultResponse> getSchedule(String idx){
+    public DetailScheduleResponse updateDetailSchedule(String sid,DetailScheduleListRequest createDetailSchedulelist){
+        int sidx = Integer.parseInt(sid);
+        if(sm.getSchedule(sidx)==null){
+            return new DetailScheduleResponse(ErrorStrings.Schedule_NOT_FOUND, DetailScheduleResponse.Status.NOTFOUND);
+        }
+        rsm.detailScheduleDelete(Integer.parseInt(sid));
+        createDetailSchedulelist.getList().stream().forEach(s->rsm.createDetailSchedule(DetailScheduleDto.update(sidx,s)));
+
+        return new DetailScheduleResponse("SUCCESS", DetailScheduleResponse.Status.OK);
+    }
+    public ScheduleResponse getSchedules(String idx){
         int sidx = Integer.parseInt(idx);
-        List<ScheduleDto> list =Optional.ofNullable(sm.getSchedule(sidx)).orElse(new ArrayList<>());
-        DefaultResponse dr = new DefaultResponse(DefaultResponse.Status.SUCCESS,list);
-        return new ResponseEntity<>(dr, HttpStatus.OK);
+        List<ScheduleDto> list =Optional.ofNullable(sm.getSchedules(sidx)).orElse(new ArrayList<>());
+        return new ScheduleResponse(list,"SUCCESS", ScheduleResponse.Status.OK);
     }
-    public ResponseEntity<DefaultResponse> getScheduleDetail(String idx){
-        int sidx = Integer.parseInt(idx);
-        List<RoutScheduleDto> list =Optional.ofNullable(rsm.getScheduleDetail(sidx)).orElse(new ArrayList<>());
-        System.err.println(list.size());
-        DefaultResponse dr = new DefaultResponse(DefaultResponse.Status.SUCCESS,list);
-        return new ResponseEntity<>(dr, HttpStatus.OK);
+    public DetailScheduleResponse getScheduleDetail(String sid){
+        int sidx = Integer.parseInt(sid);
+        if(sm.getSchedule(sidx)==null){
+            return new DetailScheduleResponse(ErrorStrings.Schedule_NOT_FOUND, DetailScheduleResponse.Status.NOTFOUND);
+        }
+        List<DetailScheduleDto> detailScheduleDtos=Optional.ofNullable(rsm.getScheduleDetail(sidx)).orElse(new ArrayList<>());
+        return new DetailScheduleResponse(detailScheduleDtos,"SUCCESS", DetailScheduleResponse.Status.OK);
     }
 
 }
