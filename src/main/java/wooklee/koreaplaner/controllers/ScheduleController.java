@@ -4,6 +4,7 @@ import com.sun.org.apache.regexp.internal.RE;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -36,33 +37,32 @@ public class ScheduleController {
             @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
+    @ApiOperation(value = "스케줄 만들기", notes = "스케줄 만들기")
     @PostMapping(value = "/schedule")
     public ResponseEntity<DefaultResponse> addSchedule(@Valid @RequestBody ScheduleRequest createSchedule, HttpServletRequest httpServletRequest) {
         String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        return ss.createSchedule(email,createSchedule);
+        String id = jwtUtil.getIdFromToken(token);
+        return ss.createSchedule(id,createSchedule);
     }
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
+    @ApiOperation(value = "detail스케줄 만들기", notes = "detail스케줄 만들기")
     @PostMapping(value = "/{idx}/detail")
     public ResponseEntity<DefaultResponse> addScheduleDetail(@PathVariable(value = "idx") String id, @RequestBody DetailScheduleListRequest detailScheduleListRequest, HttpServletRequest httpServletRequest){
-        String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        return ss.createDetailSchedule(email,id,detailScheduleListRequest);
+        return ss.createDetailSchedule(id,detailScheduleListRequest);
     }
 
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
+    @ApiOperation(value = "스케줄 변경하기", notes = "스케줄 변경하기")
     @PutMapping(value = "/{idx}")
     public ResponseEntity<DefaultResponse> updateSchedule(@PathVariable(value = "idx") String id, @Valid @RequestBody ScheduleRequest updateSchedulRequest, HttpServletRequest httpServletRequest){
-        String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        return ss.updateSchedule(email,id,updateSchedulRequest);
+        return ss.updateSchedule(id,updateSchedulRequest);
 
     }
 
@@ -71,15 +71,27 @@ public class ScheduleController {
                     dataType = "string", paramType = "Header")
     })
     @PutMapping(value = "/schedule/{idx}/detail")
+    @ApiOperation(value = "detaul스케줄 변경하기", notes = "detail스케줄 변경하기 아직 미완성 너랑 상의하할꺼 있음..")
     public ResponseEntity<DefaultResponse> updateScheduleDetail(@PathVariable(value = "idx") String idx, @RequestBody DetailScheduleListRequest detailScheduleListRequest, HttpServletRequest httpServletRequest){
-        String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        return ss.createDetailSchedule(email,idx,detailScheduleListRequest);
+        return ss.createDetailSchedule(idx,detailScheduleListRequest);
     }
 
-
-
-
-
-
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
+    @ApiOperation(value = "스케줄 보여주기", notes = "스케줄 보여주기(user id로)")
+    @GetMapping(value = "/{uidx}")
+    public ResponseEntity<DefaultResponse> getSchedule(@PathVariable(value = "uidx") String uidx,HttpServletRequest httpServletRequest){
+        return ss.getSchedule(uidx);
+    }
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
+    @ApiOperation(value = "스케줄detail 보여주기", notes = "스케줄detail 보여주기")
+    @GetMapping(value = "/{idx}/detail")
+    public ResponseEntity<DefaultResponse> getScheduleDetail(@PathVariable(value = "idx") String uidx,HttpServletRequest httpServletRequest){
+        return ss.getScheduleDetail(uidx);
+    }
 }

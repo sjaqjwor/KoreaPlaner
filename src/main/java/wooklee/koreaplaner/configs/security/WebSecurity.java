@@ -36,7 +36,11 @@ public class WebSecurity extends WebMvcConfigurerAdapter{
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtIntercept).addPathPatterns("/api/**").excludePathPatterns("/api/user/login")
+        registry.addInterceptor(jwtIntercept)
+//                .addPathPatterns("/api/users/*")
+//                .addPathPatterns("/api/schedules/**")
+                .excludePathPatterns("/api/users/sign/up")
+                .excludePathPatterns("/api/users/login")
                 .excludePathPatterns("/static/**", "swagger-ui.html", "/webjars/**", "/v2/api-docs", "/configuration/security", "/configuration/ui", "/swagger-resources");
         ;
     }

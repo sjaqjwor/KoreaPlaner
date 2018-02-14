@@ -24,7 +24,7 @@ public class CustomLogAspect {
     public Object controllerLog(ProceedingJoinPoint jp) throws Throwable {
 
         long startTime = System.currentTimeMillis();
-        ResponseEntity<DefaultResponse> re = (ResponseEntity<DefaultResponse>) jp.proceed();
+        ResponseEntity<?> re = (ResponseEntity<?>) jp.proceed();
 
         long endTime = System.currentTimeMillis();
         Signature s = jp.getSignature();

@@ -1,14 +1,18 @@
 package wooklee.koreaplaner.controllers.requests.user;
 
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserLoginRequest {
+    @NotNull
     private String email;
+    @NotNull
     private String password;
 }

@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import wooklee.koreaplaner.domains.User.User;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
 
 import java.util.Date;
@@ -25,7 +24,7 @@ public class JwtUtil {
     private String issuer;
 
 
-    public String getEmailFromToken(String token){
+    public String getIdFromToken(String token){
         return getClaimFromToken(token,Claims::getSubject);
 
     }
@@ -63,7 +62,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(map)
-                .setSubject(user.getEmail())
+                .setSubject(String.valueOf(user.getId()))
                 .setIssuer(issuer)
                 .setIssuedAt(create)
                 .setExpiration(expir)

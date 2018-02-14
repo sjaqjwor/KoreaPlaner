@@ -20,7 +20,7 @@ public class ScheduleDto {
     private int share;
     private int favorite;
 
-    public ScheduleDto create(int uid,ScheduleRequest createSchedule){
+    public static ScheduleDto create(int uid,ScheduleRequest createSchedule){
         return builder()
                 .title(createSchedule.getTitle())
                 .startdate(createSchedule.getStartdate())
@@ -32,7 +32,7 @@ public class ScheduleDto {
                 .build();
     }
 
-    public ScheduleDto update(int sid,ScheduleRequest scheduleRequest){
+    public static ScheduleDto update(int sid,ScheduleRequest scheduleRequest){
         return builder()
                .sid(sid)
                .startdate(scheduleRequest.getStartdate())

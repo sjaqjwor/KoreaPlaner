@@ -2,23 +2,23 @@ package wooklee.koreaplaner.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wooklee.koreaplaner.configs.aws.S3Service;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
+import wooklee.koreaplaner.configs.security.Encriptor;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
-import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
-import wooklee.koreaplaner.controllers.responses.DefaultResponse;
-import wooklee.koreaplaner.controllers.responses.DefaultResponse.Status;
-import wooklee.koreaplaner.domains.User.User;
+import wooklee.koreaplaner.controllers.requests.user.UserRequest;
+import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.dtos.user.AddUserDto;
-import wooklee.koreaplaner.dtos.user.ConfirmUserDto;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
 import wooklee.koreaplaner.mappers.UserMapper;
 import wooklee.koreaplaner.utiles.ErrorStrings;
+
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -37,121 +37,118 @@ public class UserService {
     private String url;
 
 
-    //security
-    //    @Autowired
-    //    private AuthenticationManager authenticationManager;
-    //    @Autowired
-    //    private UserDetailsService userDetailsService;
-
-    //security 사용 하지만 바꿈
-//    public ResponseEntity<DefaultResponse> userLogin(UserLogin userLogin){
-//
-//        UsernamePasswordAuthenticationToken us = new UsernamePasswordAuthenticationToken(
-//                userLogin.getEmail(), userLogin.getPassword()
-//        );
-//        try {
-//            final Authentication authentication = authenticationManager.authenticate(us);
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
-//            String token = jwtUtil.createToken(userDetails);
-//            DefaultResponse dr = new DefaultResponse(Status.SUCCESS,token);
-//            return new ResponseEntity<>(dr,HttpStatus.OK);
-//
-//        }catch (Exception e){
-//            DefaultResponse dr = new DefaultResponse(Status.FAIL,ErrorStrings.EMAIL_OR_PASSWORD_WRONG);
-//            return new ResponseEntity<>(dr,HttpStatus.UNAUTHORIZED);
-//        }
-//
-//    }
-    public ResponseEntity<DefaultResponse> userLogin(UserLoginRequest userLogin){
-            Optional<FindUserDto> user = Optional.ofNullable(um.confirmUser(new ConfirmUserDto().confirmUserDto(userLogin)));
-            if(user.isPresent()) {
-                String token = jwtUtil.createToken(user.get());
-                DefaultResponse dr = new DefaultResponse(Status.SUCCESS, token);
-                return new ResponseEntity<>(dr, HttpStatus.OK);
-            }
-            else{
-                DefaultResponse dr = new DefaultResponse(Status.FAIL,ErrorStrings.EMAIL_OR_PASSWORD_WRONG);
-                return new ResponseEntity<>(dr,HttpStatus.BAD_REQUEST);
-            }
-
-    }
-
-
-        public ResponseEntity<DefaultResponse> userSignUp(UserSignUp userSignUp)throws IOException{
-        if(!confirmEmail(userSignUp.getEmail())){
-            return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.EXIST_EMAIL), HttpStatus.BAD_REQUEST);
-        }
-        if(!confirmPhoneNumber(userSignUp.getPhonenumber())){
-            return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.EXIST_PHONENUMBER),HttpStatus.BAD_REQUEST);
-        }
-        um.userRegist(new AddUserDto().addUser(userSignUp));
-
-        return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"USER_REGIST_SUCCESS"),HttpStatus.OK);
-    }
-
-    public ResponseEntity<DefaultResponse> addProfilImage(String email , MultipartFile multipartFile) throws IOException{
-        if(multipartFile==null){
-            return new ResponseEntity<>(new DefaultResponse(Status.FAIL,ErrorStrings.IMAGE_IS_NULL),HttpStatus.BAD_REQUEST);
-        }else{
-            FindUserDto findUserDto = um.confirmEmail(email);
-
-            String filename = s3Service.uploadS3(multipartFile);
-            findUserDto.setProfileimage(filename);
-            um.addUserImage(new AddUserDto().updateUser(findUserDto));
-            return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"SUCCESS_IMAGE_REGIST"),HttpStatus.OK);
+    public UserResponse userLogin(UserLoginRequest userLogin) throws NoSuchAlgorithmException {
+        userLogin.setPassword(Encriptor.sha256(userLogin.getPassword()));
+        FindUserDto findUserDto = um.confirmUser(userLogin);
+        if (findUserDto == null) {
+            return new UserResponse(ErrorStrings.EMAIL_OR_PASSWORD_WRONG, UserResponse.Status.NOCONTENT);
+        } else {
+            Map<String, Object> map = new HashMap<>();
+            map.put("Token", jwtUtil.createToken(findUserDto));
+            map.put("User", findUserDto);
+            return new UserResponse(map, "SUCCESS", UserResponse.Status.OK);
         }
     }
 
-    public ResponseEntity<DefaultResponse> addInterest(String email, String interest){
-        FindUserDto findUserDto = um.confirmEmail(email);
-        findUserDto.setInterest(interest);
-        um.addUserInterest(new AddUserDto().updateUser(findUserDto));
-        return new ResponseEntity<>(new DefaultResponse(Status.SUCCESS,"SUCCESS_INTEREST_REGIST"),HttpStatus.OK);
+
+    public UserResponse userSignUp(UserRequest userSignUp) throws NoSuchAlgorithmException {
+        if (!confirmEmail(userSignUp.getEmail())) {
+            return new UserResponse(ErrorStrings.EXIST_EMAIL, UserResponse.Status.DUFLICATE);
+        }
+        if (!confirmPhoneNumber(userSignUp.getPhonenumber())) {
+            return new UserResponse(ErrorStrings.EXIST_PHONENUMBER, UserResponse.Status.DUFLICATE);
+        }
+        um.userRegist(AddUserDto.addUser(userSignUp));
+        return new UserResponse("SUCCESS", UserResponse.Status.OK);
+    }
+
+    public UserResponse addProfilImage(String idx, MultipartFile multipartFile) throws IOException {
+        String filename = s3Service.uploadS3(multipartFile);
+        FindUserDto findUserDto = um.imageUpdate(Integer.parseInt(idx), filename);
+        if (findUserDto == null) {
+            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
+        } else {
+            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
+        }
+    }
+
+    public UserResponse getUser(String idx) {
+        FindUserDto findUserDto = findUser(0, idx);
+        if (findUserDto == null) {
+            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
+        } else {
+            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
+        }
     }
 
 
+    public UserResponse updateUser(String idx, UserRequest updateUserRequest) throws NoSuchAlgorithmException {
+        FindUserDto findUserDto = um.confirmId(Integer.parseInt(idx));
+        if (findUserDto == null) {
+            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
+        } else {
+            findUserDto=um.userUpdate(AddUserDto.updateUser(findUserDto, updateUserRequest, Encriptor.sha256(updateUserRequest.getPassword())));
+            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
+        }
+    }
 
 
-
-
+    //0 id
     //1 email
     //3 name
-    public <T>FindUserDto findUser(int index,T t){
-        if(index ==1){
-            FindUserDto findUserDto = findByEmail((String)t);
-            Optional<String> profileimage=Optional.ofNullable(findUserDto.getProfileimage());
-            if(profileimage.isPresent()) {
-                findUserDto.setProfileimage(url + profileimage.get());
+    public <T> FindUserDto findUser(int index, T t) {
+        if (index == 0) {
+            FindUserDto findUserDto = findById(Integer.parseInt((String) t));
+            if (findUserDto == null) {
+                return null;
+            } else {
+                return ofUser(findUserDto);
             }
-            return findUserDto;
-        }else{
-            String name = (String)t;
+        }
+        if (index == 1) {
+            FindUserDto findUserDto = findByEmail((String) t);
+            if (findUserDto == null) {
+                return null;
+            } else {
+                return ofUser(findUserDto);
+            }
+        } else {
+            String name = (String) t;
             return findByName(name);
         }
 
     }
 
-    private boolean confirmEmail(String email){
+
+    private FindUserDto ofUser(FindUserDto findUserDto) {
+        Optional<String> profileimage = Optional.ofNullable(findUserDto.getProfileimage());
+        if (profileimage.isPresent()) {
+            findUserDto.setProfileimage(url + profileimage.get());
+        }
+        return findUserDto;
+    }
+
+    private boolean confirmEmail(String email) {
         FindUserDto user = um.confirmEmail(email);
         return user == null ? true : false;
     }
 
-    private boolean confirmPhoneNumber(String phoneNumber){
+    private boolean confirmPhoneNumber(String phoneNumber) {
         FindUserDto user = um.confirmPhoneNumber(phoneNumber);
         return user == null ? true : false;
     }
 
-    private FindUserDto findById(int id){
+    private FindUserDto findById(int id) {
         return um.confirmId(id);
     }
-    private FindUserDto findByEmail(String email){
+
+    private FindUserDto findByEmail(String email) {
         return um.confirmEmail(email);
     }
-    private FindUserDto findByName(String name){
+
+    private FindUserDto findByName(String name) {
         return um.confirmName(name);
     }
-
 
 
 }

@@ -3,6 +3,7 @@ package wooklee.koreaplaner.controllers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -11,16 +12,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
-import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
-import wooklee.koreaplaner.controllers.responses.DefaultResponse;
-import wooklee.koreaplaner.controllers.responses.DefaultResponse.Status;
+import wooklee.koreaplaner.controllers.requests.user.UserRequest;
+
+import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.services.UserService;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
-@RequestMapping(value="/api/user")
+@RequestMapping(value = "/api/users")
 @Api
 public class UserController {
 
@@ -33,55 +36,51 @@ public class UserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-
-    @PostMapping(value="/login")
-    public ResponseEntity<DefaultResponse> userLogin(@RequestBody UserLoginRequest userLogin){
-        return us.userLogin(userLogin);
-    }
-
-    @PostMapping(value="sign/up")
-    public ResponseEntity<DefaultResponse> signUp(@RequestBody UserSignUp userSignUp)
-    throws IOException{
-        return us.userSignUp(userSignUp);
+    @ApiOperation(value = "login", notes = "login")
+    @PostMapping(value = "/login")
+    public ResponseEntity<UserResponse> userLogin(@Valid @RequestBody UserLoginRequest userLogin) throws NoSuchAlgorithmException {
+        UserResponse ur = us.userLogin(userLogin);
+        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
 
     }
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
-                    dataType = "string", paramType = "Header")
-    })
-    @GetMapping(value = "/find")
-    public ResponseEntity<DefaultResponse> findUser(HttpServletRequest httpServletRequest){
-        String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        DefaultResponse dr = new DefaultResponse(Status.SUCCESS,us.findUser(1,email));
-        return new ResponseEntity<>(dr,HttpStatus.OK);
+    @PostMapping(value = "sign/up")
+    @ApiOperation(value = "회원가입", notes = "회원가입")
+    public ResponseEntity<UserResponse> signUp(@Valid @RequestBody UserRequest userSignUp)
+            throws NoSuchAlgorithmException {
+        UserResponse ur = us.userSignUp(userSignUp);
+        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+            @ApiImplicitParam(name = "Authorization", value = "authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
-
-    @PutMapping(value = "/add/profilimage")
-    public ResponseEntity<DefaultResponse> addProfilImage(HttpServletRequest httpServletRequest,@RequestParam("profilImage")MultipartFile multipartFile) throws IOException{
-        String token = httpServletRequest.getHeader(header);
-        String email = jwtUtil.getEmailFromToken(token);
-        return us.addProfilImage(email,multipartFile);
+    @ApiOperation(value = "회원정보", notes = "회원정보")
+    @GetMapping(value = "/{idx}")
+    public ResponseEntity<UserResponse> findUser(@PathVariable("idx") String idx) {
+        UserResponse ur = us.getUser(idx);
+        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
     }
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+            @ApiImplicitParam(name = "Authorization", value = "authorization header", required = true,
                     dataType = "string", paramType = "Header")
     })
-    @PutMapping(value = "/add/interest")
-    public ResponseEntity<DefaultResponse> addInterest(@RequestParam("interest") String interest,HttpServletRequest httpServletRequest){
-      String token = httpServletRequest.getHeader(header);
-      String email = jwtUtil.getEmailFromToken(token);
-      return us.addInterest(email,interest);
+    @ApiOperation(value = "profile image", notes = "profile image")
+    @PutMapping(value = "/{idx}/profilimage")
+    public ResponseEntity<UserResponse> addProfilImage(@PathVariable("idx") String idx, @NotNull @RequestParam("profilImage") MultipartFile multipartFile) throws IOException {
+        UserResponse ur = us.addProfilImage(idx, multipartFile);
+        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
     }
 
 
-
-
+    @PutMapping(value = "/{idx}")
+    @ApiOperation(value = "회원정보 수정 ", notes = "회원정보수정")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("idx") String idx, @Valid @RequestBody UserRequest userRequest) throws NoSuchAlgorithmException{
+        System.err.println(idx);
+        UserResponse ur= us.updateUser(idx, userRequest);
+        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+    }
 }

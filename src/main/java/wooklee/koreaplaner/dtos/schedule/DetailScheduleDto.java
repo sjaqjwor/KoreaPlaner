@@ -19,7 +19,7 @@ public class DetailScheduleDto {
     private String enddate;
     private int sequence;
 
-    public DetailScheduleDto create(int sid,DetailScheduleRequest detailScheduleRequest){
+    public static DetailScheduleDto create(int sid,DetailScheduleRequest detailScheduleRequest){
         return builder()
                 .city(detailScheduleRequest.getCity())
                 .sid(sid)
@@ -31,7 +31,7 @@ public class DetailScheduleDto {
                 .sequence(detailScheduleRequest.getSequence())
                 .build();
     }
-    public DetailScheduleDto update(DetailScheduleRequest detailScheduleRequest){
+    public static DetailScheduleDto update(DetailScheduleRequest detailScheduleRequest){
         return builder()
                 .city(detailScheduleRequest.getCity())
                 .enddate(detailScheduleRequest.getEnddate())

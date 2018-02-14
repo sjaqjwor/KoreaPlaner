@@ -1,7 +1,11 @@
 package wooklee.koreaplaner.dtos.user;
 
 import lombok.*;
-import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
+import org.springframework.web.multipart.MultipartFile;
+import wooklee.koreaplaner.configs.security.Encriptor;
+import wooklee.koreaplaner.controllers.requests.user.UserRequest;
+
+import java.security.NoSuchAlgorithmException;
 
 @Getter
 @Setter
@@ -10,6 +14,7 @@ import wooklee.koreaplaner.controllers.requests.user.UserSignUp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddUserDto {
+    private int id;
     private String name;
     private String password;
     private String email;
@@ -19,21 +24,25 @@ public class AddUserDto {
     private String phonenumber;
     private String interest;
 
-    public AddUserDto addUser(UserSignUp userSignUp){
+    public static AddUserDto addUser(UserRequest userSignUp) throws NoSuchAlgorithmException{
         return AddUserDto.builder()
                 .name(userSignUp.getName())
-                .password(userSignUp.getPassword())
+                .password(Encriptor.sha256(userSignUp.getPassword()))
                 .email(userSignUp.getEmail())
                 .birth(userSignUp.getBirth())
                 .phonenumber(userSignUp.getPhonenumber())
                 .build();
     }
 
-    public AddUserDto updateUser(FindUserDto findUserDto){
+    public static AddUserDto updateUser(FindUserDto findUserDto,UserRequest userRequest,String password){
         return AddUserDto.builder()
+                .id(findUserDto.getId())
                 .email(findUserDto.getEmail())
-                .interest(findUserDto.getInterest())
+                .name(userRequest.getName())
+                .interest(userRequest.getInterest())
+                .password(password)
                 .profileimage(findUserDto.getProfileimage())
+                .phonenumber(findUserDto.getPhonenumber())
                 .build();
     }
 
