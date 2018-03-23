@@ -11,14 +11,15 @@ import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ScheduleDto {
-    private int sid;
-    private int uid;
+    private Long sid;
+    private Long uid;
     private String title;
     private String startdate;
     private String enddate;
     private String thema;
     private int share;
     private int favorite;
+    private String content;
 
     public static ScheduleDto create(ScheduleRequest createSchedule){
         return builder()
@@ -26,13 +27,14 @@ public class ScheduleDto {
                 .startdate(createSchedule.getStartdate())
                 .enddate(createSchedule.getEnddate())
                 .thema(createSchedule.getThema())
-                .uid(Integer.parseInt(createSchedule.getUidx()))
+                .uid(Long.parseLong(createSchedule.getUidx()))
                 .share(0)
                 .favorite(0)
+                .content(createSchedule.getContent())
                 .build();
     }
 
-    public static ScheduleDto update(int sid,ScheduleRequest scheduleRequest){
+    public static ScheduleDto update(Long sid,ScheduleRequest scheduleRequest){
         return builder()
                .sid(sid)
                .startdate(scheduleRequest.getStartdate())

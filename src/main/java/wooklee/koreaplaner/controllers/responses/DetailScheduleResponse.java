@@ -1,50 +1,20 @@
 package wooklee.koreaplaner.controllers.responses;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 public class DetailScheduleResponse {
     private Object data;
     private String msg;
-    private Status status;
+    private StatusCode status;
 
-    public DetailScheduleResponse(String msg, Status status){
-        this.data=null;
-        this.msg=msg;
-        this.status=status;
-    }
-    public enum Status{
-        OK(200,"OK"),
-        NOTFOUND(400,"NotFoundSchedule");
-
-        private int code;
-        private String content;
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        Status(int code, String content){
-            this.code=code;
-            this.content=content;
-        }
+    public DetailScheduleResponse(String msg, StatusCode status) {
+        this.data = null;
+        this.msg = msg;
+        this.status = status;
     }
 }

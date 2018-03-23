@@ -25,7 +25,7 @@ public class JwtIntercept implements HandlerInterceptor{
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception {
-        System.err.println("Asdasdasdadsa");
+
         String token = httpServletRequest.getHeader(header);
         if(token==null){
             httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED,ErrorStrings.TOKEN_IS_NOT_TRUE);

@@ -17,4 +17,8 @@ public class DetailScheduleRequest {
     private String traffic;
     private String startdate;
     private String enddate;
+    @NonNull
+    private Double longitude;
+    @NonNull
+    private Double latitude;
 }

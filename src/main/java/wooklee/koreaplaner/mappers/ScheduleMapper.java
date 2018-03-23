@@ -12,6 +12,7 @@ import java.util.List;
 public interface ScheduleMapper {
     void createSchedule(ScheduleDto createScheduleDto);
     void updateSchedule(ScheduleDto updateScheduleDto);
-    List<ScheduleDto> getSchedules(Integer idx);
-    ScheduleDto getSchedule(Integer idx);
+    List<ScheduleDto> getSchedules(Long idx);
+    ScheduleDto getSchedule(Long idx);
+    void deleteSchedule(Long idx);
 }

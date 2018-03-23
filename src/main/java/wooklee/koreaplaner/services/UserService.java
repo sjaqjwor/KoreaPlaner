@@ -1,5 +1,6 @@
 package wooklee.koreaplaner.services;
 
+import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -7,19 +8,23 @@ import org.springframework.web.multipart.MultipartFile;
 import wooklee.koreaplaner.configs.aws.S3Service;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
 import wooklee.koreaplaner.configs.security.Encriptor;
+import wooklee.koreaplaner.controllers.requests.user.UpdateUserRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserRequest;
+import wooklee.koreaplaner.controllers.responses.StatusCode;
 import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.dtos.user.AddUserDto;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
+import wooklee.koreaplaner.exceptions.UserConflictException;
+import wooklee.koreaplaner.exceptions.UserNotFoundException;
 import wooklee.koreaplaner.mappers.UserMapper;
 import wooklee.koreaplaner.utiles.ErrorStrings;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -37,59 +42,66 @@ public class UserService {
     private String url;
 
 
-    public UserResponse userLogin(UserLoginRequest userLogin) throws NoSuchAlgorithmException {
+    public FindUserDto userLogin(UserLoginRequest userLogin) throws NoSuchAlgorithmException {
         userLogin.setPassword(Encriptor.sha256(userLogin.getPassword()));
-        FindUserDto findUserDto = um.confirmUser(userLogin);
-        if (findUserDto == null) {
-            return new UserResponse(ErrorStrings.EMAIL_OR_PASSWORD_WRONG, UserResponse.Status.NOCONTENT);
-        } else {
-            Map<String, Object> map = new HashMap<>();
-            map.put("Token", jwtUtil.createToken(findUserDto));
-            map.put("User", findUserDto);
-            return new UserResponse(map, "SUCCESS", UserResponse.Status.OK);
+        FindUserDto fud=Optional.ofNullable(um.confirmUser(userLogin)).orElseThrow(UserNotFoundException::new);
+        if(fud.getProfileimage()==null){
+            return fud;
+        }
+        else{
+            fud.setProfileimage(url+fud.getProfileimage());
+            return fud;
         }
     }
 
 
-    public UserResponse userSignUp(UserRequest userSignUp) throws NoSuchAlgorithmException {
+    public void userSignUp(UserRequest userSignUp) throws NoSuchAlgorithmException {
         if (!confirmEmail(userSignUp.getEmail())) {
-            return new UserResponse(ErrorStrings.EXIST_EMAIL, UserResponse.Status.DUFLICATE);
+            throw new UserConflictException(ErrorStrings.EXIST_EMAIL);
         }
         if (!confirmPhoneNumber(userSignUp.getPhonenumber())) {
-            return new UserResponse(ErrorStrings.EXIST_PHONENUMBER, UserResponse.Status.DUFLICATE);
+            throw new UserConflictException(ErrorStrings.EXIST_PHONENUMBER);
         }
         um.userRegist(AddUserDto.addUser(userSignUp));
-        return new UserResponse("SUCCESS", UserResponse.Status.OK);
+
     }
 
-    public UserResponse addProfilImage(String idx, MultipartFile multipartFile) throws IOException {
+    public FindUserDto addProfilImage(String idx, MultipartFile multipartFile) throws IOException {
         String filename = s3Service.uploadS3(multipartFile);
-        FindUserDto findUserDto = um.imageUpdate(Integer.parseInt(idx), filename);
-        if (findUserDto == null) {
-            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
-        } else {
-            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
+        FindUserDto fud =Optional.ofNullable(um.imageUpdate(Integer.parseInt(idx), filename)).orElseThrow(UserNotFoundException::new);
+        if(fud.getProfileimage()==null){
+            return fud;
+        }else{
+            fud.setProfileimage(url+fud.getProfileimage());
+            return fud;
         }
+
     }
 
-    public UserResponse getUser(String idx) {
-        FindUserDto findUserDto = findUser(0, idx);
-        if (findUserDto == null) {
-            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
-        } else {
-            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
-        }
+    public FindUserDto getUser(String idx) {
+        return Optional.ofNullable(findUser(0, idx)).orElseThrow(UserNotFoundException::new);
+    }
+    public List<FindUserDto> getUserAll(String idx){
+        return um.getAllUser(Long.parseLong(idx)).stream().map(s->{if(s.getProfileimage()!=null){
+        s.setProfileimage(url+s.getProfileimage());}
+       return s; }).collect(Collectors.toList());
     }
 
 
-    public UserResponse updateUser(String idx, UserRequest updateUserRequest) throws NoSuchAlgorithmException {
-        FindUserDto findUserDto = um.confirmId(Integer.parseInt(idx));
+    public UserResponse updateUser(String idx, UpdateUserRequest updateUserRequest) throws NoSuchAlgorithmException {
+        FindUserDto findUserDto = um.confirmId(Long.parseLong(idx));
         if (findUserDto == null) {
-            return new UserResponse(ErrorStrings.USER_NOT_FOUND, UserResponse.Status.NOTFOUND);
-        } else {
-            findUserDto=um.userUpdate(AddUserDto.updateUser(findUserDto, updateUserRequest, Encriptor.sha256(updateUserRequest.getPassword())));
-            return new UserResponse(findUserDto, "SUCCESS", UserResponse.Status.OK);
+            throw new UserNotFoundException();
         }
+        if (!confirmPhoneNumber(updateUserRequest, idx)) {
+            throw new UserConflictException(ErrorStrings.EXIST_PHONENUMBER);
+        }
+        if (TextUtils.isBlank(updateUserRequest.getPassword())) {
+            return UserResponse.builder().user(um.userUpdate(AddUserDto.updateUser(findUserDto, updateUserRequest))).msg("SUCCESS").status(StatusCode.OK).build();
+        } else {
+            return UserResponse.builder().user(um.userUpdate(AddUserDto.updateUser(findUserDto, updateUserRequest, Encriptor.sha256(updateUserRequest.getPassword())))).msg("SUCCESS").status(StatusCode.OK).build();
+        }
+
     }
 
 
@@ -133,13 +145,20 @@ public class UserService {
         return user == null ? true : false;
     }
 
-    private boolean confirmPhoneNumber(String phoneNumber) {
-        FindUserDto user = um.confirmPhoneNumber(phoneNumber);
-        return user == null ? true : false;
+    private <T> boolean confirmPhoneNumber(T t, String... idx) {
+        if (t instanceof UpdateUserRequest) {
+            UpdateUserRequest updateUserRequest = (UpdateUserRequest) t;
+            FindUserDto user = um.confirmId(Long.parseLong(idx[0]));
+            return user.getPhonenumber().equals(updateUserRequest.getPhonenumber()) ? false : true;
+        } else {
+            FindUserDto user = um.confirmPhoneNumber((String) t);
+            return user == null ? true : false;
+        }
+
     }
 
     private FindUserDto findById(int id) {
-        return um.confirmId(id);
+        return um.confirmId(new Long(id));
     }
 
     private FindUserDto findByEmail(String email) {

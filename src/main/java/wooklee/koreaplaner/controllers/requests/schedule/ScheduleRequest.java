@@ -20,4 +20,5 @@ public class ScheduleRequest {
     private String enddate;
     @NotNull
     private String thema;
+    private String content;
 }

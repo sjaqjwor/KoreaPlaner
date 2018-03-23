@@ -13,6 +13,6 @@ import java.util.List;
 public interface DetailScheduleMapper {
     void createDetailSchedule(DetailScheduleDto createDetailScheduleDto);
     void updateDetailSchedule(DetailScheduleDto updateDetailScheduleDto);
-    List<DetailScheduleDto> getScheduleDetail(Integer idx);
-    void detailScheduleDelete(Integer idx);
+    List<DetailScheduleDto> getScheduleDetail(Long idx);
+    void detailScheduleDelete(Long idx);
 }

@@ -21,7 +21,8 @@ public class UserRequest {
     private String email;
     @NotNull
     private String phonenumber;
-
+    @NotNull
     private String birth;
+
     private String interest;
 }

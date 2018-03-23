@@ -3,6 +3,7 @@ package wooklee.koreaplaner.dtos.user;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 import wooklee.koreaplaner.configs.security.Encriptor;
+import wooklee.koreaplaner.controllers.requests.user.UpdateUserRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserRequest;
 
 import java.security.NoSuchAlgorithmException;
@@ -34,13 +35,24 @@ public class AddUserDto {
                 .build();
     }
 
-    public static AddUserDto updateUser(FindUserDto findUserDto,UserRequest userRequest,String password){
+    public static AddUserDto updateUser(FindUserDto findUserDto,UpdateUserRequest userRequest,String password){
         return AddUserDto.builder()
                 .id(findUserDto.getId())
                 .email(findUserDto.getEmail())
                 .name(userRequest.getName())
                 .interest(userRequest.getInterest())
                 .password(password)
+                .profileimage(findUserDto.getProfileimage())
+                .phonenumber(findUserDto.getPhonenumber())
+                .build();
+    }
+    public static AddUserDto updateUser(FindUserDto findUserDto,UpdateUserRequest userRequest){
+        return AddUserDto.builder()
+                .id(findUserDto.getId())
+                .email(findUserDto.getEmail())
+                .name(userRequest.getName())
+                .interest(userRequest.getInterest())
+                .password("")
                 .profileimage(findUserDto.getProfileimage())
                 .phonenumber(findUserDto.getPhonenumber())
                 .build();

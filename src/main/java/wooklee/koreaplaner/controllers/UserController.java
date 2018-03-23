@@ -11,16 +11,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wooklee.koreaplaner.configs.jwt.JwtUtil;
+import wooklee.koreaplaner.controllers.requests.user.UpdateUserRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserRequest;
 
+import wooklee.koreaplaner.controllers.responses.DefaultResponse;
+import wooklee.koreaplaner.controllers.responses.StatusCode;
 import wooklee.koreaplaner.controllers.responses.UserResponse;
+import wooklee.koreaplaner.dtos.user.FindUserDto;
+import wooklee.koreaplaner.exceptions.UserConflictException;
+import wooklee.koreaplaner.exceptions.UserNotFoundException;
 import wooklee.koreaplaner.services.UserService;
+import wooklee.koreaplaner.utiles.ErrorStrings;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -39,17 +47,17 @@ public class UserController {
     @ApiOperation(value = "login", notes = "login")
     @PostMapping(value = "/login")
     public ResponseEntity<UserResponse> userLogin(@Valid @RequestBody UserLoginRequest userLogin) throws NoSuchAlgorithmException {
-        UserResponse ur = us.userLogin(userLogin);
-        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+        FindUserDto fud = us.userLogin(userLogin);
+        return new ResponseEntity<>(UserResponse.builder().data(jwtUtil.createToken(fud)).user(fud).msg("SUCCESS").status(StatusCode.OK).build(), HttpStatus.OK);
 
     }
 
-    @PostMapping(value = "sign/up")
+    @PostMapping(value = "/sign/up")
     @ApiOperation(value = "회원가입", notes = "회원가입")
-    public ResponseEntity<UserResponse> signUp(@Valid @RequestBody UserRequest userSignUp)
+    public ResponseEntity<DefaultResponse> signUp(@Valid @RequestBody UserRequest userSignUp)
             throws NoSuchAlgorithmException {
-        UserResponse ur = us.userSignUp(userSignUp);
-        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+        us.userSignUp(userSignUp);
+        return new ResponseEntity<DefaultResponse>(DefaultResponse.builder().status(StatusCode.OK).build(), HttpStatus.OK);
 
     }
 
@@ -60,10 +68,21 @@ public class UserController {
     @ApiOperation(value = "회원정보", notes = "회원정보")
     @GetMapping(value = "/{idx}")
     public ResponseEntity<UserResponse> findUser(@PathVariable("idx") String idx) {
-        UserResponse ur = us.getUser(idx);
-        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+        FindUserDto fud = us.getUser(idx);
+        UserResponse ur = UserResponse.builder().user(fud).msg("SUCCESS").status(StatusCode.OK).build();
+        return new ResponseEntity<>(ur, HttpStatus.OK);
     }
-
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
+    @ApiOperation(value = "모든회원정보", notes = "모든회원정보 (idx는 자신꺼 그 이뉴는 자기자신 제외하고 다보냄)")
+    @GetMapping(value = "/all/{idx}")
+    public ResponseEntity<UserResponse> findUserAll(@PathVariable("idx") String idx) {
+        List<FindUserDto> fud = us.getUserAll(idx);
+        UserResponse ur = UserResponse.builder().user(fud).msg("SUCCESS").status(StatusCode.OK).build();
+        return new ResponseEntity<>(ur, HttpStatus.OK);
+    }
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "authorization header", required = true,
                     dataType = "string", paramType = "Header")
@@ -71,16 +90,43 @@ public class UserController {
     @ApiOperation(value = "profile image", notes = "profile image")
     @PutMapping(value = "/{idx}/profilimage")
     public ResponseEntity<UserResponse> addProfilImage(@PathVariable("idx") String idx, @NotNull @RequestParam("profilImage") MultipartFile multipartFile) throws IOException {
-        UserResponse ur = us.addProfilImage(idx, multipartFile);
-        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+        FindUserDto fud = us.addProfilImage(idx, multipartFile);
+        UserResponse ur = UserResponse.builder().status(StatusCode.OK).msg("SUCCESS").user(fud).build();
+        return new ResponseEntity<>(ur, HttpStatus.OK);
     }
 
-
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "authorization header", required = true,
+                    dataType = "string", paramType = "Header")
+    })
     @PutMapping(value = "/{idx}")
     @ApiOperation(value = "회원정보 수정 ", notes = "회원정보수정")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable("idx") String idx, @Valid @RequestBody UserRequest userRequest) throws NoSuchAlgorithmException{
-        System.err.println(idx);
-        UserResponse ur= us.updateUser(idx, userRequest);
-        return new ResponseEntity<>(ur, HttpStatus.valueOf(ur.getStatus().getCode()));
+    public ResponseEntity<UserResponse> updateUser(@PathVariable("idx") String idx, @Valid @RequestBody UpdateUserRequest updateUserRequest) throws NoSuchAlgorithmException {
+        UserResponse ur = us.updateUser(idx, updateUserRequest);
+        return new ResponseEntity<UserResponse>(ur, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<UserResponse> userNotFoundException(UserNotFoundException unfe) {
+        UserResponse ur = UserResponse.builder().msg(ErrorStrings.USER_NOT_FOUND).status(StatusCode.USERNOTFOUND).build();
+        return new ResponseEntity<UserResponse>(ur, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(UserConflictException.class)
+    public ResponseEntity<?> userConflictException(UserConflictException uce) {
+        UserResponse ur = UserResponse.builder().msg(uce.getMessage()).status(StatusCode.CONFLICATE).build();
+        return new ResponseEntity<>(ur, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<?> awsError(IOException i) {
+        UserResponse ur = UserResponse.builder().status(StatusCode.AWSERROR).build();
+        return new ResponseEntity<>(ur, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(NoSuchAlgorithmException.class)
+    public ResponseEntity<?> noSuchAlgp(NoSuchAlgorithmException nsae) {
+        UserResponse ur = UserResponse.builder().status(StatusCode.ENCRIPTORError).build();
+        return new ResponseEntity<>(ur,HttpStatus.OK);
     }
 }

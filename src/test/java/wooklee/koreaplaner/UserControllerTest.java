@@ -132,13 +132,13 @@
 //    @Test
 //    public void updateUser() throws Exception {
 //        String token = token();
+//        System.err.println(token);
 //        UserRequest userUpdate = new UserRequest();
 //        userUpdate.setName("kk1111123123w");
 //        userUpdate.setInterest("gksrn11111r");
-//        userUpdate.setPassword("123");
-//        userUpdate.setEmail("sjaq3jwor1@gmail.com");
+//        userUpdate.setPassword("2");
 //        userUpdate.setPhonenumber("01091476976");
-//        MvcResult mvcResult = mockMvc.perform(put("/api/users/{idx}",43).header(
+//        MvcResult mvcResult = mockMvc.perform(put("/api/users/{idx}",45).header(
 //                "Authorization",token
 //        ).contentType(MediaType.APPLICATION_JSON).content(json(userUpdate))).andExpect(status().isOk()).andDo(print()).andReturn();
 //        logger.info(mvcResult.getResponse().getContentAsString());
@@ -186,8 +186,8 @@
 //
 //    public String token() throws Exception{
 //        UserLoginRequest login = new UserLoginRequest();
-//        login.setEmail("sjaq3jwor1@gmail.com");
-//        login.setPassword("123");
+//        login.setEmail("2");
+//        login.setPassword("21");
 //        String json = this.json(login);
 //
 //        MvcResult mvcResult = mockMvc.perform(post("/api/users/login").
@@ -196,7 +196,7 @@
 //                .andExpect(status().isOk())
 //                .andReturn();
 //        String token = mvcResult.getResponse().getContentAsString();
-//        return token.split("}")[1].split(":")[1].replace("\"","");
+//        return token.split(",")[0].split(":")[1].replace("\"","");
 //    }
 //
 //
