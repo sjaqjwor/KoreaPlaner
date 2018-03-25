@@ -12,7 +12,7 @@ import wooklee.koreaplaner.configs.security.Encriptor;
 import wooklee.koreaplaner.controllers.requests.user.UpdateUserRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserRequest;
-import wooklee.koreaplaner.controllers.responses.StatusCode;
+import wooklee.koreaplaner.controllers.responses.status.StatusCode;
 import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.dtos.user.AddUserDto;
 import wooklee.koreaplaner.dtos.user.FindUserDto;

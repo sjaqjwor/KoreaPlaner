@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wooklee.koreaplaner.controllers.requests.detailschedule.DetailScheduleListRequest;
+import wooklee.koreaplaner.controllers.requests.schedule.AddFriendRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
 import wooklee.koreaplaner.controllers.responses.DetailScheduleResponse;
 import wooklee.koreaplaner.controllers.responses.ScheduleResponse;
-import wooklee.koreaplaner.controllers.responses.StatusCode;
+import wooklee.koreaplaner.controllers.responses.status.StatusCode;
 import wooklee.koreaplaner.dtos.schedule.DetailScheduleDto;
 import wooklee.koreaplaner.dtos.schedule.DetailSchedulesDto;
 import wooklee.koreaplaner.dtos.schedule.ScheduleDto;
@@ -16,7 +17,6 @@ import wooklee.koreaplaner.dtos.user.FindUserDto;
 import wooklee.koreaplaner.exceptions.ScheduleNotFoundException;
 import wooklee.koreaplaner.mappers.DetailScheduleMapper;
 import wooklee.koreaplaner.mappers.ScheduleMapper;
-import wooklee.koreaplaner.mappers.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +92,13 @@ public class ScheduleService {
                 }return s;}).collect(Collectors.toList());
         List<DetailScheduleDto> detailScheduleDtos = Optional.ofNullable(rsm.getScheduleDetail(sidx)).orElse(new ArrayList<>());
         return new DetailScheduleResponse(new DetailSchedulesDto(findUserDtos,detailScheduleDtos), "SUCCESS", StatusCode.OK);
+    }
+
+    public void addFriendToSchedule(String sidx, AddFriendRequest addFriendRequest){
+        if (sm.getSchedule(Long.parseLong(sidx)) == null) {
+            throw new ScheduleNotFoundException();
+        }
+        addFriendRequest.getUid().forEach(s->sm.updateaddFriend(Long.parseLong(s),Long.parseLong(sidx)));
     }
 
 }

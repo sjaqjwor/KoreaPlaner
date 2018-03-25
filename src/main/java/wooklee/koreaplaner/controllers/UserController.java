@@ -16,7 +16,7 @@ import wooklee.koreaplaner.controllers.requests.user.UserLoginRequest;
 import wooklee.koreaplaner.controllers.requests.user.UserRequest;
 
 import wooklee.koreaplaner.controllers.responses.DefaultResponse;
-import wooklee.koreaplaner.controllers.responses.StatusCode;
+import wooklee.koreaplaner.controllers.responses.status.StatusCode;
 import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
 import wooklee.koreaplaner.exceptions.UserConflictException;

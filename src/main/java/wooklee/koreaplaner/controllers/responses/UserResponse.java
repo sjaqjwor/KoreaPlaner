@@ -1,6 +1,7 @@
 package wooklee.koreaplaner.controllers.responses;
 
 import lombok.*;
+import wooklee.koreaplaner.controllers.responses.status.StatusCode;
 
 @Data
 @AllArgsConstructor
