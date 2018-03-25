@@ -20,6 +20,8 @@ public class ScheduleDto {
     private int share;
     private int favorite;
     private String content;
+    private String name;
+    private String type;
 
     public static ScheduleDto create(ScheduleRequest createSchedule){
         return builder()
