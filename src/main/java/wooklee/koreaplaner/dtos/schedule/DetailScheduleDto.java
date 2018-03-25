@@ -2,6 +2,9 @@ package wooklee.koreaplaner.dtos.schedule;
 
 import lombok.*;
 import wooklee.koreaplaner.controllers.requests.detailschedule.DetailScheduleRequest;
+import wooklee.koreaplaner.dtos.user.FindUserDto;
+
+import java.util.List;
 
 @Getter
 @Setter
