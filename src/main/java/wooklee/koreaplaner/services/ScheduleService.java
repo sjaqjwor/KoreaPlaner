@@ -2,6 +2,7 @@ package wooklee.koreaplaner.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import wooklee.koreaplaner.controllers.requests.detailschedule.DetailScheduleListRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
 import wooklee.koreaplaner.controllers.responses.DetailScheduleResponse;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ScheduleService {
 
     @Autowired
@@ -31,8 +33,8 @@ public class ScheduleService {
 
     public ScheduleResponse createSchedule(ScheduleRequest createSchedule) {
         ScheduleDto createScheduleDto = ScheduleDto.create(createSchedule);
-        sm.createSchedule(createScheduleDto);
-        return new ScheduleResponse(createScheduleDto.getSid(), "SUCCESS", StatusCode.OK);
+        Integer sid = sm.createSchedule(createScheduleDto);
+        return new ScheduleResponse(sid, "SUCCESS", StatusCode.OK);
     }
 
     public void deleteSchedule(Long idx){

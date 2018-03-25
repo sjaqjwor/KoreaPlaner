@@ -113,4 +113,14 @@ public class ScheduleController {
         DetailScheduleResponse dsr = ss.getScheduleDetail(idx);
         return new ResponseEntity<>(dsr,HttpStatus.OK);
     }
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "Authorization", value ="authorization header", required = true,
+//                    dataType = "string", paramType = "Header")
+//    })
+//    @ApiOperation(value = "스케줄에 친구추가", notes = "스케줄에 친구추가")
+//    @PostMapping(value = "/{idx}/detail")
+//    public ResponseEntity<DetailScheduleResponse> getScheduleDetail(@PathVariable(value = "uidx") String uidx,HttpServletRequest httpServletRequest){
+//        DetailScheduleResponse dsr = ss.getScheduleDetail(idx);
+//        return new ResponseEntity<>(dsr,HttpStatus.OK);
+//    }
 }

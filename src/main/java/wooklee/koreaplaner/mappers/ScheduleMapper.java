@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 @Repository
 public interface ScheduleMapper {
-    void createSchedule(ScheduleDto createScheduleDto);
+    Integer createSchedule(ScheduleDto createScheduleDto);
     void updateSchedule(ScheduleDto updateScheduleDto);
     List<ScheduleDto> getSchedules(Long idx);
     ScheduleDto getSchedule(Long idx);
