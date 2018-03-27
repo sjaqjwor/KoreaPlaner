@@ -15,11 +15,14 @@ import wooklee.koreaplaner.controllers.requests.schedule.AddFriendRequest;
 import wooklee.koreaplaner.controllers.requests.schedule.ScheduleRequest;
 import wooklee.koreaplaner.controllers.responses.DetailScheduleResponse;
 import wooklee.koreaplaner.controllers.responses.ScheduleResponse;
+import wooklee.koreaplaner.controllers.responses.UserResponse;
 import wooklee.koreaplaner.controllers.responses.status.StatusCode;
+import wooklee.koreaplaner.exceptions.ScheduleNotFoundException;
 import wooklee.koreaplaner.services.ScheduleService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping(value = "/api/schedules")
@@ -52,7 +55,7 @@ public class ScheduleController {
     })
     @ApiOperation(value = "스케줄 지우기", notes = "스케줄 지우기")
     @DeleteMapping(value = "/schedule/{idx}")
-    public ResponseEntity<ScheduleResponse> deleteSchedule(@PathVariable("idx") Long idx) {
+    public ResponseEntity<ScheduleResponse> deleteSchedule(@PathVariable("idx") String idx) {
         ss.deleteSchedule(idx);
         return new ResponseEntity<>(ScheduleResponse.builder().msg("SUCCESS").status(StatusCode.OK).build(), HttpStatus.OK);
     }
@@ -123,5 +126,10 @@ public class ScheduleController {
     public ResponseEntity<DetailScheduleResponse> getAddFriendToSchedule(@PathVariable(value = "sidx") String sidx, @RequestBody AddFriendRequest addFriendRequest) {
         ss.addFriendToSchedule(sidx,addFriendRequest);
         return new ResponseEntity<>(DetailScheduleResponse.builder().msg("SUCCESS").build(), HttpStatus.OK);
+    }
+    @ExceptionHandler(ScheduleNotFoundException.class)
+    public ResponseEntity<?> scheduleNotFound(ScheduleNotFoundException nsae) {
+        ScheduleResponse sr =ScheduleResponse.builder().status(StatusCode.SCHEDULENOTFOUND).build();
+        return new ResponseEntity<>(sr,HttpStatus.OK);
     }
 }

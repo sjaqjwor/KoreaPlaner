@@ -15,8 +15,10 @@ import wooklee.koreaplaner.dtos.schedule.DetailSchedulesDto;
 import wooklee.koreaplaner.dtos.schedule.ScheduleDto;
 import wooklee.koreaplaner.dtos.user.FindUserDto;
 import wooklee.koreaplaner.exceptions.ScheduleNotFoundException;
+import wooklee.koreaplaner.exceptions.UserNotFoundException;
 import wooklee.koreaplaner.mappers.DetailScheduleMapper;
 import wooklee.koreaplaner.mappers.ScheduleMapper;
+import wooklee.koreaplaner.mappers.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public class ScheduleService {
     @Autowired
     private DetailScheduleMapper rsm;
 
+    @Autowired
+    private UserMapper um;
+
     @Value("${image.url}")
     private String url;
 
@@ -42,10 +47,9 @@ public class ScheduleService {
         Integer sid = sm.createSchedule(createScheduleDto);
         return new ScheduleResponse(sid, "SUCCESS", StatusCode.OK);
     }
-
-    public void deleteSchedule(Long idx){
-        Optional.ofNullable(sm.getSchedule(idx)).orElseThrow(ScheduleNotFoundException::new);
-        sm.deleteSchedule(idx);
+    public void deleteSchedule(String idx){
+        Optional.ofNullable(sm.getSchedule(Long.parseLong(idx))).orElseThrow(ScheduleNotFoundException::new);
+        sm.deleteSchedule(Long.parseLong(idx));
     }
 
     public void createDetailSchedule(String sid, DetailScheduleListRequest createDetailSchedulelist) {
@@ -76,6 +80,7 @@ public class ScheduleService {
 
     public ScheduleResponse getSchedules(String idx) {
         Long sidx = Long.parseLong(idx);
+        Optional.ofNullable(um.confirmId(sidx)).orElseThrow(UserNotFoundException::new);
         List<ScheduleDto> list = Optional.ofNullable(sm.getSchedules(sidx)).orElse(new ArrayList<>());
         return new ScheduleResponse(list, "SUCCESS", StatusCode.OK);
     }
