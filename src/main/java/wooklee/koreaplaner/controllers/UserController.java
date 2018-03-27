@@ -112,21 +112,4 @@ public class UserController {
         return new ResponseEntity<UserResponse>(ur, HttpStatus.OK);
     }
 
-    @ExceptionHandler(UserConflictException.class)
-    public ResponseEntity<?> userConflictException(UserConflictException uce) {
-        UserResponse ur = UserResponse.builder().msg(uce.getMessage()).status(StatusCode.CONFLICATE).build();
-        return new ResponseEntity<>(ur, HttpStatus.OK);
-    }
-
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<?> awsError(IOException i) {
-        UserResponse ur = UserResponse.builder().status(StatusCode.AWSERROR).build();
-        return new ResponseEntity<>(ur, HttpStatus.OK);
-    }
-
-    @ExceptionHandler(NoSuchAlgorithmException.class)
-    public ResponseEntity<?> noSuchAlgp(NoSuchAlgorithmException nsae) {
-        UserResponse ur = UserResponse.builder().status(StatusCode.ENCRIPTORError).build();
-        return new ResponseEntity<>(ur,HttpStatus.OK);
-    }
 }

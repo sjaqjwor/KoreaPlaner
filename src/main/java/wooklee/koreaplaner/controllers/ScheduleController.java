@@ -127,9 +127,5 @@ public class ScheduleController {
         ss.addFriendToSchedule(sidx,addFriendRequest);
         return new ResponseEntity<>(DetailScheduleResponse.builder().msg("SUCCESS").build(), HttpStatus.OK);
     }
-    @ExceptionHandler(ScheduleNotFoundException.class)
-    public ResponseEntity<?> scheduleNotFound(ScheduleNotFoundException nsae) {
-        ScheduleResponse sr =ScheduleResponse.builder().status(StatusCode.SCHEDULENOTFOUND).build();
-        return new ResponseEntity<>(sr,HttpStatus.OK);
-    }
+
 }
