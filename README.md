@@ -4,7 +4,7 @@
 <br />
 
 ## 소개하기
-**국내 여행 계획 플래너**
+**국내 여행 계획을 친구들과 같이 세우는 **
 
 ## 준비하기
 
@@ -151,7 +151,7 @@ Springboot(aop,intercept,controllerAdvice)
 JWT(인증토크)
 S3(이미지 저장)
 EC2(서버 배포)
-
+MYSQL
 ```
 
 
