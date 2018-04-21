@@ -46,14 +46,13 @@ public class UserService {
 
     public FindUserDto userLogin(UserLoginRequest userLogin) throws NoSuchAlgorithmException {
         userLogin.setPassword(Encriptor.sha256(userLogin.getPassword()));
-        FindUserDto fud=Optional.ofNullable(um.confirmUser(userLogin)).orElseThrow(UserNotFoundException::new);
-        if(fud.getProfileimage()==null){
-            return fud;
-        }
-        else{
-            fud.setProfileimage(url+fud.getProfileimage());
-            return fud;
-        }
+        FindUserDto fud=Optional.ofNullable(um.confirmUser(userLogin))
+                .map(u -> {
+                    Optional.ofNullable(u.getProfileimage())
+                            .ifPresent((s) -> { u.setProfileimage(url+s);});
+                    return u;
+                }).orElseThrow(UserNotFoundException::new);
+        return fud;
     }
 
 
