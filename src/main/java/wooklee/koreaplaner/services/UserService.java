@@ -93,9 +93,8 @@ public class UserService {
 
     public UserResponse updateUser(String idx, UpdateUserRequest updateUserRequest) throws NoSuchAlgorithmException {
         FindUserDto findUserDto = um.confirmId(Long.parseLong(idx));
-        if (findUserDto == null) {
-            throw new UserNotFoundException();
-        }
+        Optional.ofNullable(findUserDto).orElseThrow(UserNotFoundException::new);
+        
         if (!confirmPhoneNumber(updateUserRequest, idx)) {
             throw new UserConflictException(ErrorStrings.EXIST_PHONENUMBER);
         }
