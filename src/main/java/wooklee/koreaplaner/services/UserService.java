@@ -69,14 +69,13 @@ public class UserService {
 
     public FindUserDto addProfilImage(String idx, MultipartFile multipartFile) throws IOException {
         String filename = s3Service.uploadS3(multipartFile);
-        FindUserDto fud =Optional.ofNullable(um.imageUpdate(Integer.parseInt(idx), filename)).orElseThrow(UserNotFoundException::new);
-        if(fud.getProfileimage()==null){
-            return fud;
-        }else{
-            fud.setProfileimage(url+fud.getProfileimage());
-            return fud;
-        }
-
+        FindUserDto fud =Optional.ofNullable(um.imageUpdate(Integer.parseInt(idx), filename))
+                .map(u -> {
+                    Optional.ofNullable(u.getProfileimage())
+                            .ifPresent((s) -> { u.setProfileimage(url+s);});
+                    return u;
+                }).orElseThrow(UserNotFoundException::new);
+        return fud;
     }
 
     public FindUserDto getUser(String idx) {
