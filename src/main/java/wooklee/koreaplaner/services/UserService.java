@@ -82,9 +82,12 @@ public class UserService {
         return Optional.ofNullable(findUser(0, idx)).orElseThrow(UserNotFoundException::new);
     }
     public List<FindUserDto> getUserAll(String idx){
-        return um.getAllUser(Long.parseLong(idx)).stream().map(s->{if(s.getProfileimage()!=null){
-        s.setProfileimage(url+s.getProfileimage());}
-       return s; }).collect(Collectors.toList());
+        return um.getAllUser(Long.parseLong(idx)).stream()
+                .map(u->{
+                    Optional.ofNullable(u.getProfileimage())
+                            .ifPresent((s) -> { u.setProfileimage(url+s);});
+                    return u;
+                }).collect(Collectors.toList());
     }
 
 
